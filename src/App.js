@@ -10,7 +10,7 @@ const candyColors = [
 ]
 
 const App = () => {
-  const [currentColorArrangement, setColorArrangment] = useState([]);
+  const [currentColorArrangement, setCurrentColorArrangement] = useState([]);
   const [squareBeingDragged, setSquareBeingDragged] = useState(null);
   const [squareBeingReplaced, setSquareBeingReplaced] = useState(null);
 
@@ -22,6 +22,7 @@ const App = () => {
 
       if (columnOfFour.every(square => currentColorArrangement[square] === decidedColor)) {
         columnOfFour.forEach(square => currentColorArrangement[square] = "")
+        return true
       }
     }
   }
@@ -36,6 +37,7 @@ const App = () => {
 
       if (rowOfFour.every(square => currentColorArrangement[square] === decidedColor)) {
         rowOfFour.forEach(square => currentColorArrangement[square] = "")
+        return true
       }
     }
   }
@@ -47,6 +49,7 @@ const App = () => {
 
       if (columnOfThree.every(square => currentColorArrangement[square] === decidedColor)) {
         columnOfThree.forEach(square => currentColorArrangement[square] = "")
+        return true 
       }
     }
   }
@@ -109,6 +112,32 @@ const App = () => {
 
     console.log("squareBeingDraggedId", squareBeingDraggedId)
     console.log("squareBeingReplacedId", squareBeingReplacedId)
+
+    const validMoves = [
+      squareBeingDraggedId - 1,
+      squareBeingDraggedId - width,
+      squareBeingDraggedId + 1,
+      squareBeingDraggedId + width
+    ]
+
+    const validMove = validMoves.includes(squareBeingReplacedId)
+
+    const isAColumnOfFour = checkForColumnsOfFour()
+    const isARowOfFour = checkForRowOfFour()
+    const isAColumnOfThree = checkForColumnsOfThree()
+    const isARowOfThree = checkForRowOfThree()
+
+    // check if the square being replaced is valid or not 
+    if (squareBeingReplacedId &&
+      validMove &&
+      (isARowOfThree || isARowOfFour || isAColumnOfFour || isAColumnOfThree)) {
+      setSquareBeingDragged(null)
+      setSquareBeingReplaced(null)
+  } else {
+      currentColorArrangement[squareBeingReplacedId] = squareBeingReplaced.style.backgroundColor
+      currentColorArrangement[squareBeingDraggedId] = squareBeingDragged.style.backgroundColor
+      setCurrentColorArrangement([...currentColorArrangement])
+  }
   }
 
   // create board function
@@ -119,7 +148,7 @@ const App = () => {
       const randomColor = candyColors[Math.floor(Math.random() * candyColors.length)]
       randomColorArrangement.push(randomColor)
     }
-    setColorArrangment(randomColorArrangement)
+    setCurrentColorArrangement(randomColorArrangement)
   }
   // use effect for create board function 
   useEffect(() => {
@@ -133,7 +162,7 @@ const App = () => {
       checkForColumnsOfThree()
       checkForRowOfThree()
       moveintoSquareBelow()
-      setColorArrangment([...currentColorArrangement])
+      setCurrentColorArrangement([...currentColorArrangement])
     }, 200)
     return () => clearInterval(timer)
 
